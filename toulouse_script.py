@@ -222,6 +222,47 @@ summaryFrame_sorted4.iloc[702]
 # Now we can obtain the 50 titles with more loans.
 summaryFrame_sorted3.head(50)
 
+# 4 Variable 'author'
+
+toulouse['author'].head()
+
+# As expected it contains the names of the authors.
+
+# Has any missing value?
+
+sum(toulouse['author'].isnull())
+# One of the author names seems to be missing.
+toulouse[toulouse['author'] == None].index
+
+toulouse[toulouse['author'].isnull() == True].index
+toulouse.iloc[14493]['author']
+toulouse.iloc[14493]['title']
+toulouse.iloc[14493]
+
+toulouse.loc[14493, 'author'] = 'unknown'
+
+# Let's see how many different authors are registered in the dataset.
+len(toulouse['author'].unique())
+
+# 50 authors most readed
+summaryAuthors = toulouse[["author", "nb_loans"]].groupby(['author']).sum()
+summaryAuthors = summaryAuthors.sort_values(by = ['nb_loans'], ascending = False)
+summaryAuthors.head(50)
+
+# Let's reclassify the observations with an author '-' as 'unknown'.
+
+indexes = toulouse[toulouse['author'] == '-'].index
+toulouse.loc[indexes, 'author'] = 'unknown'
+
+# Let's summarize again
+summaryAuthors = toulouse[["author", "nb_loans"]].groupby(['author']).sum()
+summaryAuthors = summaryAuthors.sort_values(by = ['nb_loans'], ascending = False)
+summaryAuthors.head(20)
+
+# Books of the author with more loans
+
+toulouse[toulouse['author'] == "Saint-Mars, Dominique de"]["title"].unique()
+
 
 
 
