@@ -3,6 +3,7 @@
 
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
 
 # First, let's try to load the data
 os.chdir("./documents/datasets/toulouse_public_library_loans_dataset")
@@ -263,26 +264,36 @@ summaryAuthors.head(20)
 
 toulouse[toulouse['author'] == "Saint-Mars, Dominique de"]["title"].unique()
 
+# 5 Variable 'publisher'
 
+toulouse['publisher'].head()
 
+# Has any missing value?
+sum(toulouse['publisher'].isnull())
 
+# At first glance there are no missing values in this variable.
 
+# How many unique publishers are registered in the variable?
+len(toulouse['publisher'].unique())
 
+# Which are the publishers with more books in the dataset?
+toulouse['publisher'].value_counts().head(20)
 
+# If the counts are ordered by descending order, counts.values must be equal
+# to sorted(counts.values)
+counts = toulouse['publisher'].value_counts()
+sum(counts.values == sorted(counts.values, reverse = True)) == counts.values.shape[0]
 
+# Again let's reclassify the values accounted with a '-' as 'unknown'.
 
+indexes = toulouse[toulouse['publisher'] == '-'].index
+toulouse.loc[indexes, 'publisher'] = 'unknown'
+# Let's obtain again the counts
+toulouse['publisher'].value_counts().head(20)
+# We can see that almost all the 20 publishers with more presence in the dataset
+# correspond to film production companies.
 
-
-
-
-
-
-
-
-
-
-
-
-
+# Let's see the titles of the publisher with more observations in the dataset.
+toulouse[toulouse['publisher'] == "[S.l] : Buena Vista Home Intertainment, 2006"]['title'].unique()
 
 
