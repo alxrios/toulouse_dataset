@@ -3,7 +3,9 @@
 
 import pandas as pd
 import os
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+import numpy as np
+import re
 
 # First, let's try to load the data
 os.chdir("./documents/datasets/toulouse_public_library_loans_dataset")
@@ -295,5 +297,83 @@ toulouse['publisher'].value_counts().head(20)
 
 # Let's see the titles of the publisher with more observations in the dataset.
 toulouse[toulouse['publisher'] == "[S.l] : Buena Vista Home Intertainment, 2006"]['title'].unique()
+
+# 6 Variable 'classification'
+
+toulouse['classification'].head()
+len(toulouse['classification'].unique())
+
+# Are missing values present in the variable?
+sum(toulouse['classification'].isnull())
+# 5 Missings obtained, let's see them
+indexes = toulouse[toulouse['classification'].isnull()].index
+toulouse.loc[indexes]
+
+# Let's write the rows into a txt file so we can fully see them.
+check_frame = toulouse.loc[indexes]
+os.chdir("../../codes/python/toulouse_dataset")
+with open('check_frame.txt', 'w') as file:
+    for i in range(0, check_frame.shape[0]):
+        for j in range(0, check_frame.shape[1]):
+            file.write(str(check_frame.iloc[i][j]))
+            file.write("|")
+        file.write("\n")
+        
+
+# All the observations have the same title, let's see if we can find more
+# observations with that title in the dataset.
+
+title = check_frame.iloc[0]['title']
+toulouse[toulouse['title'] == title].index == check_frame.index
+
+# Let's try to find some "lazy" match with the title
+re.findall("minuscule", title, re.I)
+
+for i in range(0, toulouse.shape[0]):
+    title = toulouse.iloc[i]['title']
+    # re.findall("minuscule", toulouse.iloc[i]['title'], re.I)
+    if len(re.findall("minuscule", title, re.I)) > 0:
+        print(i)
+
+
+# So seems that there are more observations that could match the title in a more
+# 'lazy' way.
+title_indexes = []
+for i in range(0, toulouse.shape[0]):
+    title = toulouse.iloc[i]['title']
+    if len(re.findall("minuscule", title, re.I)) > 0:
+        title_indexes.append(i)
+
+# Now let's see the titles
+toulouse.iloc[title_indexes]['title']
+
+# Let's write them into a txt file to see them well.
+with open('check_titles.txt', 'w') as file:
+    for i in title_indexes:
+        file.write(toulouse.iloc[i]['title'])
+        file.write("\n")
+
+# Now let's write their classification also
+with open('check_titles.txt', 'w') as file:
+    for i in title_indexes:
+        file.write(toulouse.iloc[i]['title'])
+        file.write("\t|")
+        file.write(str(toulouse.iloc[i]['classification']))
+        file.write("\n")
+
+# As can be seen, other DVDs of the same season take the value 'A MINU', so
+# let's replace the missing values with this one.
+toulouse.loc[indexes]['classification'] = 'A MINU'
+
+
+
+
+
+
+
+
+
+
+
 
 
