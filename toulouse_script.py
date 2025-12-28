@@ -431,17 +431,21 @@ sum(toulouse['spine_label'].isnull())
 toulouse['spine_label'].value_counts().head(10)
 
 
+# 9 Variable 'audience'
 
+toulouse['audience'].head()
+len(toulouse['audience'].unique())
+toulouse['audience'].unique()
+toulouse['audience'].value_counts()
+toulouse['audience'].value_counts()/toulouse['audience'].value_counts().sum()
 
+audience = toulouse['audience'].unique()
+counts = toulouse['audience'].value_counts().values
+percentage = (100*counts/counts.sum()).round(2)
+audienceFrame = pd.DataFrame({"audience" : audience, "counts" : counts, 
+                              "percentage" : percentage})
 
-
-
-
-
-
-
-
-
+audienceFrame
 
 
 
