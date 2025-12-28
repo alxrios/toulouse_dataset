@@ -421,9 +421,14 @@ for i in toulouse["library"].unique():
     print("--------------------------------------")
 
 
+# 8 Variable 'spine_label'
 
+toulouse['spine_label'].head()
+len(toulouse['spine_label'].unique())
+sum(toulouse['spine_label'].isnull())
+# No values classified as null.
 
-
+toulouse['spine_label'].value_counts().head(10)
 
 
 
