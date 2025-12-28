@@ -365,6 +365,96 @@ with open('check_titles.txt', 'w') as file:
 # let's replace the missing values with this one.
 toulouse.loc[indexes]['classification'] = 'A MINU'
 
+# 7 Variable 'library'
+toulouse['library'].head()
+toulouse['library'].unique()
+# It seems there are no missing values
+sum(toulouse['library'].isnull())
+# Confirmed, no missing values in the variable.
+toulouse['library'].value_counts()
+
+toulouse[['library', 'nb_loans']].groupby('library').sum()
+# Note: create a dataframe with this information and the corresponding percentage
+# for the nb_loans variable. Also quit library from being a row index and put
+# it has a column.
+libraries = toulouse[['library', 'nb_loans']].groupby('library').sum().index.values
+num_loans = toulouse[['library', 'nb_loans']].groupby('library').sum().values
+num_loans.shape = (9,)
+libFrame = pd.DataFrame({"library" : libraries, "num_loans" : num_loans})
+percentage = round(100*libFrame['num_loans']/libFrame['num_loans'].sum(), 2)
+libFrame = libFrame.assign(percentage = percentage)
+print(libFrame.sort_values(by = "num_loans", ascending = False))
+
+# Author or book with more loans for each library?
+toulouse[toulouse['library'] == 'CABANIS']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'EMP']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'COL']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'CYP']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'MGM']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'FAB']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'PRA']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'PERIGORD']['author'].value_counts().head()
+toulouse[toulouse['library'] == 'EXU']['author'].value_counts().head()
+
+for i in toulouse['library'].unique():
+    print("library: ", i, "\n")
+    print(toulouse[toulouse['library'] == i]['title'].value_counts().head(2))
+    print("--------------------------------------")
+
+
+for i in toulouse["library"].unique():
+    print("library", "\n")
+    print(toulouse[toulouse['library'] == i]['author'].value_counts().head(2))
+    print("--------------------------------------")
+
+
+toulouse[toulouse['library'] == i][['author', 'nb_loans']].groupby('author').sum().sort_values(by = 'nb_loans', ascending = False).head(2)
+
+for i in toulouse["library"].unique():
+    print("library", i, "\n")
+    print(toulouse[toulouse['library'] == i][['author', 'nb_loans']].groupby('author').sum().sort_values(by = 'nb_loans', ascending = False).head(2))
+    print("--------------------------------------")
+
+for i in toulouse["library"].unique():
+    print("library: ", i, "\n")
+    print(toulouse[toulouse['library'] == i][['title', 'nb_loans']].groupby('title').sum().sort_values(by = 'nb_loans', ascending = False).head(2))
+    print("--------------------------------------")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
