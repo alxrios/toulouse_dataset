@@ -447,12 +447,123 @@ audienceFrame = pd.DataFrame({"audience" : audience, "counts" : counts,
 
 audienceFrame
 
+# 10 Variable 'media_subtype'
+
+toulouse['media_subtype'].head()
+len(toulouse['media_subtype'].unique())
+sum(toulouse["media_subtype"].isnull())
+# 4244 nan values
+toulouse['media_subtype'].value_counts()
+
+media_subtype = toulouse['media_subtype'].value_counts().index
+counts = toulouse['media_subtype'].value_counts().values
+percentage = (100*counts/counts.sum()).round(2)
+mediasFrame = pd.DataFrame({"media_subtype" : media_subtype, 
+                            "counts" : counts, "percentage" : percentage})
+
+# Titles of the observations with nan values?
+toulouse[toulouse['media_subtype'].isnull()]['title'].value_counts()
+# So there are some that appear more than once. All the appearances are missing
+# for this column?
+toulouse[toulouse['title'] == 'Alice au pays des merveilles']['media_subtype'].value_counts(dropna = False)
+# How many titles have a count bigger than 1?
+counts = toulouse[toulouse['media_subtype'].isnull()]['title'].value_counts().values
+sum(counts > 1)
+# 1002 titles to inspect...
+title_counts = toulouse[toulouse['media_subtype'].isnull()]['title'].value_counts()
+# Now we store the titles of the media with more than one appearance to observe
+# if they take a value different than nan when repeated.
+title_names = title_counts[counts > 1].index
+# Let's begin inspecting the first ten
+for i in title_names[0:10]:
+    print(toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby(['title']).value_counts(dropna = False))
+
+# All the titles have two categories?
+i = "Rebelle"
+print(toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby(['title']).value_counts(dropna = False).shape[0])
+# Let's try to store all the shapes in an array and see if all are equal to two
+shapes = []
+for i in title_names:
+    shapes.append(toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby(['title']).value_counts(dropna = False).shape[0])
+
+shapes = np.array(shapes)
+sum(shapes == 2)
+sum(shapes == 1)
+sum(shapes >= 3)
+sum(shapes == 3)
+# Only 12 observations take the value 3, let's observe them
+for i in title_names[shapes == 3]:
+    print(toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby(['title']).value_counts(dropna = False))
+
+# Shapes that take the value one only take the value nan?
+# Let's sample one observation for check it.
+i = title_names[shapes == 1][0]
+print(toulouse[toulouse['title'] == i][['title', 'media_subtype']])
+# We can give all the observations with two categories and one being NaN for 
+# media_subtype the value of the non-missing one, with the risk of being 
+# introducing artificially errors in the variable. In this case we will still
+# having 125 observations with missing values for this variable, because we don't
+# have any reference for their possible value in the case where the observations
+# only take the value NaN, and in the case where are two options available we
+# would have to choose between the two without a clear criteria other than choose
+# the option with more observations, when there is one.
+#
+# So let's just proceed to impute the values of the observations with two
+# categories for the variable 'media_subtype'.
+#
+# First we have to store the title, and the media label
+for i in title_names[shapes == 2][0:10]:
+    print(toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby('title').value_counts())
+
+# Let's try to store the data in an auxiliar dataframe.
+replaceFrame = pd.DataFrame({"title" : [], "media_subtype" : []})
+# Test how to add row
+replaceFrame.loc[0] = ["testTitle", "testMediaType"] 
+test = toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby('title').value_counts()
+[test.index[0][0], test.index[0][1]]
+replaceFrame.loc[1] = [test.index[0][0], test.index[0][1]]
+
+row = 0
+for i in title_names[shapes == 2][0:10]:
+    replace_data = toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby('title').value_counts()
+    replaceFrame.loc[row] = [replace_data.index[0][0], replace_data.index[0][1]]
+    row += 1
+    
+i = replaceFrame['title'][0]
+toulouse[toulouse['title'] == i][toulouse['media_subtype'].isnull()][['title', 'media_subtype']]
+
+# Let's test one replacement
+# toulouse[toulouse['title'] == i][toulouse['media_subtype'].isnull()][['title', 'media_subtype']] = replaceFrame.iloc[0]['media_subtype']
+
+toulouse[toulouse['title'] == i][toulouse['media_subtype'].isnull()][['media_subtype']]
+
+# One way of achieve the replacement of the values would be
+indexes = toulouse[toulouse['title'] == i][toulouse['media_subtype'].isnull()][['media_subtype']].index
+toulouse.loc[indexes, "media_subtype"] = "test"
+
+# Now let's test it in the 10 test rows of replaceFrame
+for i in replaceFrame["title"]:
+    indexes = toulouse[toulouse['title'] == i][toulouse['media_subtype'].isnull()][['media_subtype']].index
+    toulouse.loc[indexes, "media_subtype"] = "test"
 
 
+# Now replacing by the column media_subtype instead of just "test".
+for i in replaceFrame["title"]:
+    indexes = toulouse[toulouse['title'] == i][toulouse['media_subtype'].isnull()][['media_subtype']].index
+    toulouse.loc[indexes, "media_subtype"] = replaceFrame.loc[replaceFrame['title'] == i, 'media_subtype']
 
 
+# Now let's write a version for the whole dataset
+replaceFrame = pd.DataFrame({"title" : [], "media_subtype" : []})
+row = 0
+for i in title_names[shapes == 2]:
+    replace_data = toulouse[toulouse['title'] == i][['title', 'media_subtype']].groupby('title').value_counts()
+    replaceFrame.loc[row] = [replace_data.index[0][0], replace_data.index[0][1]]
+    row += 1
 
-
+for i in replaceFrame["title"]:
+    indexes = toulouse[toulouse['title'] == i][toulouse['media_subtype'].isnull()][['media_subtype']].index
+    toulouse.loc[indexes, "media_subtype"] = replaceFrame.loc[replaceFrame['title'] == i, 'media_subtype'].values[0]
 
 
 
