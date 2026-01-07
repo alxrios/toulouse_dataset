@@ -566,15 +566,21 @@ for i in replaceFrame["title"]:
     toulouse.loc[indexes, "media_subtype"] = replaceFrame.loc[replaceFrame['title'] == i, 'media_subtype'].values[0]
 
 
+# 11 Variable 'media_type'
 
-
-
-
-
-
-
-
-
+toulouse['media_type'].head()
+len(toulouse['media_type'].unique())
+# Only three different values
+toulouse['media_type'].unique()
+# Are there any mmissing values?
+sum(toulouse['media_type'].isnull())
+# No
+toulouse['media_type'].value_counts()
+counts = toulouse['media_type'].value_counts()
+percentage = list(map(lambda x : str(x) + "%", round(100*counts/sum(counts), 2).values))
+mt_df = pd.DataFrame({"media_type" : counts.index, "counts" : counts.values, 
+                      "percentage" : percentage})
+print(mt_df)
 
 
 
